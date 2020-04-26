@@ -1,0 +1,172 @@
+<body style="background-color:#D6DBDF; text-align: center;">
+  <h2>Key:</h2>
+  <input type="text" id="key"><br>
+  <h2 style="text-align:center">Text:</h2>
+  
+  <form>
+    <textarea id="textBox1" cols="80" rows="30">
+
+    </textarea>
+  </form>
+  <br><br>
+
+  <button type="button" onclick="conv()">Convert</button>
+  <button type="button" onclick="transBack()">Translate back</button>
+  <button type="button" onclick="clearText()">Clear</button>
+  <button type="button" onclick="copyToClip()">Copy to clipboard</button>
+  <br>
+  
+  <input type="file" id="file" onchange="readTxT()"/>
+
+  <br>
+  <button type="button" onclick="createFile()">Create file</button>
+
+
+  <p id="output"></p>
+</body>
+
+<script>
+    
+    var output = document.getElementById("output");
+    var key = document.getElementById("key");
+    var box = document.getElementById("textBox1");
+    
+    var textBox; //contenuto della textbox. Null al momento della creazione
+    
+    
+    var keyPos = 0;
+    
+    
+
+
+
+
+    function conv(){    
+        var translation = '';
+        textBox = box.value; // riempie la variabile textbox
+               
+             
+      
+        for (var i = 0; i < textBox.length; i++){
+          //console.log(textBox.charAt(i));          
+          translation = translation.concat(encrypt(textBox.charCodeAt(i)), " ")       
+        } 
+        box.value = translation;
+        keyPos = 0;
+        }
+
+
+    function transBack(){
+        var translation = ""; //traduzione finale        
+        var textBox = document.getElementById("textBox1").value;
+        
+        var testo = textBox.split(" ");
+        
+        for (i = 0; i < testo.length; i++){
+          console.log("Variabile testo i:" + testo[i]);
+          var decrittato = decrypt(testo[i]); //lancia funzione decrypt
+          var unicodeToNum = String.fromCharCode(decrittato);          
+          translation = translation.concat(unicodeToNum);
+          console.log("translation concat:" + unicodeToNum);
+          
+        }
+        box.value = translation;
+        keyPos = 0;
+        
+
+    }
+
+    function encrypt(num){
+      var keyText = key.value;
+      var keyLength = keyText.length - 1;
+      var keyNum = keyText.charAt(keyPos); //la variabile keypos a cui si fa riferimento NB è globale
+      
+      /*console.log("Cifra chiave: " + keyNum);
+      console.log("Posizione chiave:" + keyPos);
+      console.log("Lunghezza chiave: " + keyLength);
+      console.log ("Output: Numero input: " + num + " moltiplicato per cifra chiave " + keyNum + " = " + (num * keyNum) );
+      */
+
+      if (keyPos == keyLength) {
+          keyPos = 0;
+          console.log("azzeramento");
+      }  else {
+      keyPos += 1;}
+
+      return (num * keyNum); 
+      
+    }
+
+    function decrypt(num){
+      var keyText = key.value;
+      var keyLength = keyText.length - 1;
+      var keyNum = keyText.charAt(keyPos); //la variabile keypos a cui si fa riferimento NB è globale
+      
+      
+      console.log("!!!!!!!!!!DECRYPT!!!!!!!!!")
+      console.log("Cifra chiave: " + keyNum);
+      console.log("KeyPos:" + keyPos);
+      console.log("Lunghezza chiave: " + keyLength);
+      console.log ("Output: Numero input: " + num + " diviso per cifra chiave " + keyNum + " = " + (num * keyNum) );
+      
+
+      if (keyPos == keyLength) {
+          keyPos = 0;
+          console.log("azzeramento");
+      }  else {
+      keyPos += 1;}
+
+      return (num / keyNum);
+      
+    }
+    
+    function clearText(){      
+      box.value="";
+    }
+
+    function copyToClip(){
+        box.select();
+        document.execCommand('copy');
+    }
+
+    function readTxT(){
+      var reader = new FileReader();
+      var files=document.getElementById('file').files;
+      var f = files[0];
+      reader.onload = function(e) {
+         var text = reader.result;
+         box.value=text;
+         files.value="";
+      }
+      reader.readAsText(f);
+      
+      
+   }
+   function createFile()
+    {
+      save('x6file.txt', box.value);
+    }
+
+    function save(filename, data) {
+    var blob = new Blob([data], {type: 'text/csv'});
+    if(window.navigator.msSaveOrOpenBlob) {
+        window.navigator.msSaveBlob(blob, filename);
+    }
+    else{
+        var elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;        
+        document.body.appendChild(elem);
+        elem.click();        
+        document.body.removeChild(elem);
+    }
+}
+
+        
+
+
+
+
+
+
+</script>
